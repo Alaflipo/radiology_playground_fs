@@ -1,0 +1,36 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "127.0.0.1:8000:8000" #we forward from port 8000 to port 8000 in the docker container
+    environment:
+      ORTHANC_URL: "http://orthanc:8042"
+      ORTHANC_USERNAME: "${ORTHANC_USERNAME:?Set ORTHANC_USERNAME in .env}"
+      ORTHANC_PASSWORD: "${ORTHANC_PASSWORD:?Set ORTHANC_PASSWORD in .env}"
+    volumes:
+      - "./backend:/app"
+    depends_on:
+      - orthanc
+    
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+
+  orthanc: 
+    image: orthancteam/orthanc:latest
+    ports: 
+      - "127.0.0.1:8042:8042"
+    environment:
+      ORTHANC_NAME: "Local Orthanc"
+      ORTHANC_REMOTE_ACCESS_ALLOWED: "true"
+      ORTHANC_AUTHENTICATION_ENABLED: "true"
+      ORTHANC__REGISTERED_USERS: >- 
+        {"${ORTHANC_USERNAME:?Set ORTHANC_USERNAME in .env}": "${ORTHANC_PASSWORD:?Set ORTHANC_PASSWORD in .env}"}
+    volumes: 
+      - orthanc-data:/var/lib/orthanc/db
+
+volumes:
+  orthanc-data:

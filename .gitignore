@@ -1,0 +1,64 @@
+# ── React / TypeScript / Vite ──
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+
+# ── Environment variables and secrets ──
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+secrets/
+*.pem
+*.key
+
+# ── DICOM / medical image data ──
+# Keep local datasets in these folders, including extensionless files.
+data/
+datasets/
+uploads/
+orthanc-data/
+
+*.dcm
+*.dicom
+*.DCM
+*.DICOM
+*.nii
+*.nii.gz
+*.nrrd
+*.mha
+*.mhd
+
+# ── Logs ──
+*.log
+logs/
+
+# ── Local editor settings ──
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── Operating system files ──
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
