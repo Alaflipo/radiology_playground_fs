@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {Enums, RenderingEngine, type Types} from "@cornerstonejs/core";
 import { initializeCornerstone } from "../cornerstone";
 import { Slider, Stack } from "@mui/material";
-import type { DicomInstance } from "../DICOM_types";
+import SegmentationUpload from "./SegmentationUpload";
 
 const API_URL = "http://localhost:8000";
 
@@ -13,10 +13,9 @@ type StackResponse = {
 
 type CornerStoneViewerProps = {
     seriesId: string; 
-    instances: DicomInstance[]; 
 }
 
-export default function CornerStoneViewer({seriesId, instances}: CornerStoneViewerProps) {
+export default function CornerStoneViewer({seriesId}: CornerStoneViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewportRef = useRef<Types.IStackViewport | null>(null);
 
@@ -168,6 +167,7 @@ export default function CornerStoneViewer({seriesId, instances}: CornerStoneView
                     showSlice(value)
                 }}
             />
+            {ready && viewportRef.current && <SegmentationUpload viewport={viewportRef.current}/>}
         </Stack>
     ); 
 }

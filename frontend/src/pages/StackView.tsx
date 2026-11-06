@@ -3,7 +3,7 @@ import InstancesViewer from "../components/InstancesViewer";
 import { Stack } from "@mui/material";
 import CornerStoneViewer from "../components/CornerStoneViewer";
 import { useEffect, useState } from "react";
-import type { DicomInstance, StackResponse } from "../DICOM_types";
+import type { StackResponse } from "../DICOM_types";
 
 const API_URL = "http://localhost:8000";
 
@@ -11,16 +11,16 @@ export default function StackView() {
 
     const { seriesId } = useParams(); 
 
-    const [instances, setInstances] = useState<DicomInstance[]>([]); 
+    const [instanceIds, setInstancIds] = useState<string[]>([]); 
 
     async function loadSeries() {
 
         try {
             if (!seriesId) return; 
 
-            const response = await fetch(`${API_URL}/api/dicom/series/${encodeURIComponent(seriesId)}/instances`); 
-            const data: DicomInstance[] = await response.json(); 
-            setInstances(data); 
+            const response = await fetch(`${API_URL}/api/dicom/series/${encodeURIComponent(seriesId)}/stack`); 
+            const data: StackResponse = await response.json(); 
+            setInstancIds(data.instanceIds); 
         } catch (error) {
             console.log(String(error)); 
         }
@@ -35,8 +35,8 @@ export default function StackView() {
             <h2>Dicom series (id: {seriesId})</h2>
             {seriesId && 
                 <Stack direction="row" spacing={2}>
-                    <InstancesViewer seriesId={seriesId} instances={instances}/>
-                    <CornerStoneViewer seriesId={seriesId} instances={instances}/>
+                    <InstancesViewer seriesId={seriesId} instanceIds={instanceIds}/>
+                    <CornerStoneViewer seriesId={seriesId}/>
                 </Stack>
             }
         </div>

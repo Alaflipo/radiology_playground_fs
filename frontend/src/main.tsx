@@ -5,6 +5,7 @@ import { MyThemeProvider } from './theme.tsx'
 
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import StackView from './pages/StackView.tsx'
+import MaskUpload from './pages/MaskView.tsx'
 
 
 const router = createBrowserRouter([
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
     {
         path: "/series/:seriesId", 
         element: <StackView/>
+    }, 
+    {
+        path: "/maskview", 
+        element: <MaskUpload/>
     }
 ]);
 
