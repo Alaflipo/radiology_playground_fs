@@ -3,6 +3,8 @@ import {Enums, RenderingEngine, type Types} from "@cornerstonejs/core";
 import { initializeCornerstone } from "../cornerstone";
 import { Slider, Stack } from "@mui/material";
 import SegmentationUpload from "./SegmentationUpload";
+import ViewerControls from "./ViewerControls";
+import { viewport } from "@cornerstonejs/tools/utilities";
 
 const API_URL = "http://localhost:8000";
 
@@ -170,6 +172,7 @@ export default function CornerStoneViewer({instanceIds, setViewport}: CornerSton
                     showSlice(value)
                 }}
             />
+            {viewportRef.current && <ViewerControls viewport={viewportRef.current}/>}
         </Stack>
     ); 
 }

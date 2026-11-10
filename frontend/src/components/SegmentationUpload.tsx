@@ -16,6 +16,8 @@ export default function SegmentationUpload({viewport}: {viewport: Types.IStackVi
     const [currentASSlice, setCurrentASSlice] = useState<{index: number, name: string}[]>([]); 
     const [hoveredLabel, setHoveredLabel] = useState("");
 
+    const [tooltipPosition, setTooltipPosition] = useState({x: 0, y: 0});
+
     // the id's of registered cornerstone segmentations
     const segmentationIds = useRef<string[]>([]);
     // identifiers of the gnerated labelmap images in the cache 
@@ -92,8 +94,6 @@ export default function SegmentationUpload({viewport}: {viewport: Types.IStackVi
             const segmentDescriptions = segMetadata.data.filter(
                 (item): item is SegmentDescription => item !== undefined
             );
-
-            console.log(segMetadata.data); 
             
             const activeSegmentNumber = Number(segmentDescriptions[0]?.SegmentNumber);
             const segmentInfo: Record<number, {label: string; active: boolean}> = {}
@@ -232,6 +232,7 @@ export default function SegmentationUpload({viewport}: {viewport: Types.IStackVi
         viewport.render();
     }
 
+    // add hover information over anatomical structures 
     useEffect(() => {
         const element = viewport.element;
 
@@ -241,11 +242,16 @@ export default function SegmentationUpload({viewport}: {viewport: Types.IStackVi
 
             const rect = element.getBoundingClientRect();
 
-            // Mouse position relative to the viewer, in CSS pixels.
+            // mouse position relative to the viewer, in CSS pixels.
             const canvasPoint: [number, number] = [
                 event.clientX - rect.left,
                 event.clientY - rect.top,
             ];
+
+            setTooltipPosition({
+                x: event.clientX, 
+                y: event.clientY
+            });
 
             // Viewer coordinates → world coordinates → image pixel.
             const worldPoint = viewport.canvasToWorld(canvasPoint);
@@ -299,8 +305,6 @@ export default function SegmentationUpload({viewport}: {viewport: Types.IStackVi
 
         function onSegmentHover(index: number | null) {
             const label = index === null ? "" : anatomicalStructures.current[index] ?? `Segment ${index}`;
-
-            console.log(label)
             setHoveredLabel(label);
 
             // add some actions 
@@ -352,6 +356,22 @@ export default function SegmentationUpload({viewport}: {viewport: Types.IStackVi
             </Stack>
             <p>Hovering: {hoveredLabel}</p>
             <AnatomicalStructuresList anatomicalStructures={currentASSlice} onStructureSelect={showOnlySegment}/>
+            {hoveredLabel && (
+                <div
+                style={{
+                    position: "fixed",
+                    left: tooltipPosition.x + 12,
+                    top: tooltipPosition.y + 12,
+                    zIndex: 10,
+                    padding: "4px",
+                    borderRadius: "4px",
+                    background: "rgba(0, 0, 0, 0.8)",
+                    color: "white",
+                }}
+                >
+                    {hoveredLabel}
+                </div>
+            )}
         </Stack>
     );
 }
