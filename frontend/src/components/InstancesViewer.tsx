@@ -5,13 +5,12 @@ import { useEffect, useState } from "react";
 import type { DicomInstance } from "../DICOM_types";
 
 interface ViewerProps {
-    seriesId: string, 
     instanceIds: string[], 
 }
 
 const API_URL = "http://localhost:8000";
 
-export default function InstancesViewer({seriesId, instanceIds}: ViewerProps) {
+export default function InstancesViewer({instanceIds}: ViewerProps) {
 
     const [open, setOpen] = useState<Record<string, boolean>>(
         Object.fromEntries(instanceIds.map(id => [id, false]))

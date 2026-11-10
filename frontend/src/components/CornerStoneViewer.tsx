@@ -12,10 +12,11 @@ type StackResponse = {
 };
 
 type CornerStoneViewerProps = {
-    seriesId: string; 
+    instanceIds: string[]; 
+    setViewport: (viewport: Types.IStackViewport | null) => void; 
 }
 
-export default function CornerStoneViewer({seriesId}: CornerStoneViewerProps) {
+export default function CornerStoneViewer({instanceIds, setViewport}: CornerStoneViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const viewportRef = useRef<Types.IStackViewport | null>(null);
 
@@ -35,37 +36,38 @@ export default function CornerStoneViewer({seriesId}: CornerStoneViewerProps) {
             setCurrentIndex(0); 
 
             try {
+                // #### Initilize cornerstone ####
                 await initializeCornerstone(); 
-                if (cancelled) return; 
+                if (cancelled || !containerRef.current || !instanceIds?.length) return; 
 
-                const response = await fetch(
-                    `${API_URL}/api/dicom/series/${seriesId}/stack`
-                );
-
-                if (!response.ok) throw new Error(await response.text());
-
-                const stack: StackResponse = await response.json();
-                if (stack.instanceIds.length == 0) throw new Error('No slices in series');
-
-                const imageIds = stack.instanceIds.map((id) =>
+                // create the image ID's (url's to get the images)
+                // it is prefixed with wadouri (Web Access Dicom Object URI)
+                // before : is called a scheme and picks a registered loader (is stripped away when reading URL)
+                const imageIds = instanceIds.map((id) =>
                     `wadouri:${API_URL}/api/dicom/instances/${id}/file`
                 );
-
+                
+                // ### create the rendering engine and assign a viewport ###
                 engine = new RenderingEngine('dicom-engine');
 
-                const viewportId = "dicom-stack"; 
-
+                const viewportId = "dicom-stack"; // we can use this ID for later reference 
+                
+                // turns my HTML container (in this case our div) into a cornerstone viewport 
                 engine.enableElement({
                     viewportId: viewportId,
                     type: Enums.ViewportType.STACK,
-                    element: containerRef.current!,
+                    element: containerRef.current,
                     defaultOptions: {
                         background: [255, 255, 255],
                     },
                 });
 
+                // retrieve the viewport
                 const viewport = engine.getViewport(viewportId) as Types.IStackViewport;
-                viewportRef.current = viewport
+                viewportRef.current = viewport; 
+                setViewport(viewport); 
+
+                // assign the images and select the first slice 
                 await viewport.setStack(imageIds, 0);
 
                 viewport.render(); 
@@ -96,6 +98,7 @@ export default function CornerStoneViewer({seriesId}: CornerStoneViewerProps) {
         return () => {
             cancelled = true; 
             viewportRef.current = null;
+            setViewport(null); 
             
             containerRef.current?.removeEventListener(
                 Enums.Events.STACK_NEW_IMAGE,
@@ -104,7 +107,7 @@ export default function CornerStoneViewer({seriesId}: CornerStoneViewerProps) {
 
             engine?.destroy();
         }
-    }, []);
+    }, [instanceIds]);
 
     // scrolling effect on the viewer
     useEffect(() => {
@@ -167,7 +170,6 @@ export default function CornerStoneViewer({seriesId}: CornerStoneViewerProps) {
                     showSlice(value)
                 }}
             />
-            {ready && viewportRef.current && <SegmentationUpload viewport={viewportRef.current}/>}
         </Stack>
     ); 
 }
